@@ -74,6 +74,7 @@ def reduce_feature(data=None, variation_percentage=90):
             print('Cumulative explained variation for {} principal components: {}'.format(n_components, cumulative_variation))
             return pca_reduced_results
 
+
 def prepare_dataset(dataset=None, desired_class=None, with_values=True):
     """ Choose one class from dataset and split and scale before
     fitting for PCA and t-sne
@@ -100,13 +101,13 @@ def prepare_dataset(dataset=None, desired_class=None, with_values=True):
         return X2, y2, target_names
 
 
-def fit_PCA_tsne(X=None, y=None, n_components=None, perplexity=50, n_iter=2000, plot=True):
+def fit_PCA_tsne(X=None, y=None, n_components=None, perplexity=50, n_iter=2000, metric=None, plot=True):
 
-    pca = PCA(n_components=2)
+    pca = PCA(n_components=n_components)
     pca_2d = pca.fit_transform(X)
 
     # Invoke the TSNE method
-    tsne = TSNE(n_components=2, verbose=1, perplexity=perplexity, n_iter=n_iter)
+    tsne = TSNE(n_components=n_components, verbose=1, perplexity=perplexity, n_iter=n_iter, metric=metric)
     tsne_result = tsne.fit_transform(X)
     
     if plot is True:
