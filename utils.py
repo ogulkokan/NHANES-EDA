@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
 from fancyimpute import KNN, NuclearNormMinimization, SoftImpute, BiScaler
+import seaborn as sns
 
 # preprocess dataset
 def preprocess_dataset(dataset=None, remove_missing=60, remove_empty_rows=True):
@@ -29,9 +30,9 @@ def preprocess_dataset(dataset=None, remove_missing=60, remove_empty_rows=True):
     else:
         return dataset_after_drop
 
-def impute_dataset(dataset=None):
+def impute_dataset(dataset=None, verbose=False):
     dataset = dataset.copy()
-    imputer = KNN()
+    imputer = KNN(verbose=verbose)
     imputed_data = pd.DataFrame(np.round(imputer.fit_transform(dataset)),columns = dataset.columns)
     return imputed_data
 
@@ -111,10 +112,13 @@ def fit_PCA_tsne(X=None, y=None, n_components=None, perplexity=50, n_iter=2000, 
     tsne_result = tsne.fit_transform(X)
     
     if plot is True:
-        compare_plots(y, pca_result=pca_2d, tsne_result=tsne_result)
+        #compare_plots(y, pca_result=pca_2d, tsne_result=tsne_result)
+        #plot_pca_result(pca_result=None, y=None)
+        plot_tsne_result(tsne_result=tsne_result, y=y)
 
+    return pca_2d, tsne_result
 
-def compare_plots(y, pca_result=None, tsne_result=None, ):
+def compare_plots(y, pca_result=None, tsne_result=None):
 
     plt.figure(figsize = (16,11))
     plt.subplot(121)
@@ -132,3 +136,44 @@ def compare_plots(y, pca_result=None, tsne_result=None, ):
     plt.legend()
     plt.title('TSNE Scatter Plot')
     plt.show()
+
+def plot_tsne_result(tsne_result=None, y=None):
+    target_ids = np.unique(y)
+    plt.figure(figsize=(13, 13))
+
+    # choose a color palette with seaborn.
+    num_classes = len(np.unique(y))
+    palette = np.array(sns.color_palette("hls", num_classes))
+
+    for i, c in zip(target_ids, palette):
+        plt.scatter(tsne_result[y == i, 0], tsne_result[y == i, 1], color=c,
+                    cmap = "coolwarm", edgecolor = "None", alpha=0.35)
+    plt.legend(target_ids)
+    plt.xlim(-25, 25)
+    plt.ylim(-25, 25)
+    plt.axis('off')
+    plt.axis('tight')
+    plt.show()
+
+
+def plot_pca_result(pca_result=None, y=None):
+        target_ids = np.unique(y)
+    
+        plt.figure(figsize=(13, 13))
+
+        # choose a color palette with seaborn.
+        num_classes = len(np.unique(y))
+        palette = np.array(sns.color_palette("hls", num_classes))
+
+        for i, c in zip(target_ids, palette):
+            plt.scatter(pca_result[y == i, 0], pca_result[y == i, 1], color=c,
+                        cmap = "coolwarm", edgecolor = "None", alpha=0.35)
+        plt.legend(target_ids)
+        #plt.xlim(-25, 25)
+        #plt.ylim(-25, 25)
+        #plt.axis('off')
+        plt.axis('tight')
+        plt.title('PCA Scatter Plot')
+        plt.xlabel('First Principal Component')
+        plt.ylabel('Second Principal Component')
+        plt.show()
